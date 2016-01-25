@@ -12,8 +12,11 @@ var bigquery = gcloud.bigquery()
 var dataset = bigquery.dataset('general_assembly')
 var table = dataset.table('twitter')
 
-stream.on('data', chunk => {
-    var tweets = String(chunk).split('\n').map(el => JSON.parse(el))
+var tweets = []
+var _i = 0;
+var data = '';
+
+var insertTweets = (tweets, callback) => {
     table.insert(tweets.map(tweet => {
         return { // Respect the schema
             'created_at': tweet.created_at,
@@ -26,6 +29,24 @@ stream.on('data', chunk => {
         if (insertErrors.length == 0) {
             console.log(tweets.length + ' tweets inserted')
         }
+        callback()
     })
+}  
 
+stream.on('data', chunk => {
+    stream.pause()
+    if (_i++ < 100) {
+        data += chunk
+        stream.resume()
+    } else {
+        var tweets = String(chunk).split('\n').map(el => JSON.parse(el))
+        data = tweets.pop()
+        insertTweets(tweets, () => stream.resume())
+        _i = 0
+    }
 })
+stream.on('end', () => {
+    var tweets = String(data).split('\n').map(el => JSON.parse(el))
+    insertTweets(tweets, () => console.log('DONE.'))
+})
+
