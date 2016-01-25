@@ -17,6 +17,7 @@ var _i = 0;
 var data = '';
 
 var insertTweets = (tweets, callback) => {
+    console.log(tweets)
     table.insert(tweets.map(tweet => {
         return { // Respect the schema
             'created_at': tweet.created_at,
