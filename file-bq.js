@@ -40,6 +40,7 @@ stream.on('data', chunk => {
         data += chunk
         stream.resume()
     } else {
+        console.log(String(chunk).split('\n'))
         var tweets = String(chunk).split('\n').map(el => JSON.parse(el))
         data = tweets.pop()
         insertTweets(tweets, () => stream.resume())
