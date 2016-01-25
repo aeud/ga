@@ -17,8 +17,14 @@ var _i = 0;
 var data = '';
 
 var insertTweets = (tweets, callback) => {
-    console.log(tweets)
-    table.insert(tweets.map(tweet => {
+    //console.log(tweets)
+    table.insert(tweets.map(el => {
+        try {
+            return JSON.parse(el)
+        } catch (e) {
+            return null
+        }
+    }).filter(el => el != null).map(tweet => {
         return { // Respect the schema
             'created_at': tweet.created_at,
             'id_str': tweet.id_str,
@@ -40,15 +46,15 @@ stream.on('data', chunk => {
         data += chunk
         stream.resume()
     } else {
-        console.log(String(chunk).split('\n'))
-        var tweets = String(chunk).split('\n').map(el => JSON.parse(el))
-        data = tweets.pop()
-        insertTweets(tweets, () => stream.resume())
+        var stringTweets = String(data).split('\n')
+        data = stringTweets.pop()
+        insertTweets(stringTweets, () => stream.resume())
         _i = 0
     }
 })
 stream.on('end', () => {
-    var tweets = String(data).split('\n').map(el => JSON.parse(el))
-    insertTweets(tweets, () => console.log('DONE.'))
+    console.log('end')
+    var stringTweets = String(data).split('\n')
+    insertTweets(stringTweets, () => console.log('DONE.'))
 })
 
