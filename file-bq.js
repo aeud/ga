@@ -25,13 +25,17 @@ var insertTweets = (tweets, callback) => {
             return null
         }
     }).filter(el => el != null).map(tweet => {
-        return { // Respect the schema
-            'created_at': tweet.created_at,
-            'id_str': tweet.id_str,
-            'user_name': tweet.user.name,
-            'text': tweet.tex
+        try {
+            return return { // Respect the schema
+                'created_at': tweet.created_at,
+                'id_str': tweet.id_str,
+                'user_name': tweet.user.name,
+                'text': tweet.tex
+            }
+        } catch (e) {
+            return null
         }
-    }), (err, insertErrors, apiResponse) => {
+    }).filter(el => el != null), (err, insertErrors, apiResponse) => {
         if (err) throw err
         if (insertErrors.length == 0) {
             console.log(tweets.length + ' tweets inserted')
