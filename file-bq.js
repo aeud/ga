@@ -26,7 +26,7 @@ var insertTweets = (tweets, callback) => {
         }
     }).filter(el => el != null).map(tweet => {
         try {
-            return return { // Respect the schema
+            return { // Respect the schema
                 'created_at': tweet.created_at,
                 'id_str': tweet.id_str,
                 'user_name': tweet.user.name,
