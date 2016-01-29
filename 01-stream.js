@@ -10,7 +10,7 @@ var client = new twitter(credentials.twitter)
 client.stream('statuses/filter', { track: 'data,science' }, stream => {
     // Display the tweets
     stream.on('data', tweet => {
-        console.log(JSON.stringify(tweet))
+        console.log([tweet.text, tweet.entities.hashtags.map(h => h.text)])
     }).on('error', error => {
         throw error
     })

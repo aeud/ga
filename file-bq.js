@@ -14,7 +14,9 @@ var table = dataset.table('twitter')
 
 var tweets = []
 var _i = 0;
-var data = '';
+var data = ''
+
+var moment = require('moment')
 
 var insertTweets = (tweets, callback) => {
     //console.log(tweets)
@@ -27,10 +29,28 @@ var insertTweets = (tweets, callback) => {
     }).filter(el => el != null).map(tweet => {
         try {
             return { // Respect the schema
-                'created_at': tweet.created_at,
+                'timestamp': moment(tweet.timestamp_ms, 'x').format('YYYY-MM-DD HH:mm:ss'),
                 'id_str': tweet.id_str,
-                'user_name': tweet.user.name,
-                'text': tweet.tex
+                'text': tweet.text,
+                'lang': tweet.lang,
+                'favorited': tweet.favorited,
+                'favorite_count': tweet.favorite_count,
+                'retweeted': tweet.retweeted,
+                'retweet_count': tweet.retweet_count,
+                'hashtags': tweet.entities.hashtags.map(h => {
+                    return { 'text': h.text }
+                }),
+                'users_mentionned': tweet.entities.user_mentions.map(h => {
+                    return { 'screen_name': h.screen_name }
+                }),
+                'user': {
+                    'name': tweet.user.name,
+                    'screen_name': tweet.user.screen_name,
+                    'lang': tweet.user.lang,
+                    'followers_count': tweet.user.followers_count,
+                    'friends_count': tweet.user.friends_count,
+                    'verified': tweet.user.verified,
+                }
             }
         } catch (e) {
             return null
@@ -39,14 +59,14 @@ var insertTweets = (tweets, callback) => {
         if (err) throw err
         if (insertErrors.length == 0) {
             console.log(tweets.length + ' tweets inserted')
-        }
+        } else console.log(insertErrors[0].errors)
         callback()
     })
 }  
 
 stream.on('data', chunk => {
     stream.pause()
-    if (_i++ < 100) {
+    if (_i++ < 1000) {
         data += chunk
         stream.resume()
     } else {
